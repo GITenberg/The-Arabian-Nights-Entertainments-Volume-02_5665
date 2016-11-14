@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: lE2R+HAYce9X/k06FCDQeYiH1YX1tzRMyvDC7FTV5+nJWgfeusNGJTy5MCXEvw9rkwqTrvjofITY8HUhk58T1lJhfK03DFqJrgppSSSyC75fK9fTtQ4mhzrO6bTozD7RZY9gpwL+VJddzK2RplYEg3JqPJIu7qeYl7yixfY56lT3KG11yPO6Ifp96xj67A3/OYEMeZKvq1uONGlSQ4vGbbj+o4+blRbmzV1mqqQQ9NxQG1gRAS914DLgi90L3lW6UZKT6M/zJXyXrUeqX9mu42cnBOIzQpwMD86XqCYW3+bVxjCoqjtvW/pBtE2/L/1zqOdQoxQHyPV2tzx+MHjNHNfwnmsZek/1QnLkWRIA/XLfs7hKLpk4F7XDEnpsAFi/3ybZWTCkXq6q1CBmXk1NuFSjB344sxHvpZonncUM5zfgwJp98r0PICNzllDGX0+v/RgxIx5Gkf5Ama8f6wO1ZqX/yDk5dfmd965A6Gx3KJP6qsvH1EWRF08/bnFFJecOkBv9z8ggahXzUnKdDzO1ruVWpyQJClZ0W/9Vy/qRLABrjkWM26UhXFzeYubjaCvnMNWfGt9soxtdRS7IIPY80wLc8RxU1SFrO0ZohbEmBdozf15XwPIJ6N3ahupR0nRlVRtBp6B5oksuSLi90XRGSIfZ08M+hadpFC8+CSf/S1I=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Arabian-Nights-Entertainments-Volume-02_5665
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
